@@ -1,0 +1,113 @@
+import { AnalysisSummary, InstagramAccount, PostOverview } from "@/types";
+
+export const mockConnectedAccounts: InstagramAccount[] = [
+  {
+    id: "acc_1",
+    username: "naracoffee.id",
+    isDarkTheme: true,
+    postCount: 48,
+    tokenExpiry: "28 Des 2026",
+    status: "Aktif",
+  },
+  {
+    id: "acc_2",
+    username: "tokorina_fashion",
+    isDarkTheme: false,
+    postCount: 124,
+    tokenExpiry: "15 Jan 2027",
+    status: "Aktif",
+  },
+];
+
+export const mockRecentPostsOverview: PostOverview[] = [
+  {
+    id: "post_1",
+    caption: "Promo Spesial Akhir Pekan Beli 1 Gratis 1 Semua Varian Kopi Susu",
+    thumbnail: "☕",
+    commentCount: 1420,
+    positivePercent: 68,
+    status: "Selesai",
+    source: "Instagram",
+  },
+  {
+    id: "post_2",
+    caption: "dataset_survey_pelanggan_nov.csv (Varian Baru Matcha Oat)",
+    thumbnail: "📊",
+    commentCount: 850,
+    positivePercent: 54,
+    status: "Selesai",
+    source: "File",
+  },
+  {
+    id: "post_3",
+    caption: "Pengumuman Jam Operasional Libur Nasional dan Layanan Pesan Antar",
+    thumbnail: "📢",
+    commentCount: 310,
+    positivePercent: 72,
+    status: "Selesai",
+    source: "Instagram",
+  },
+];
+
+export const mockRecentAnalyses: AnalysisSummary[] = [
+  {
+    id: "ANL_000076",
+    shortcode: "DCX94bzpL2a",
+    postCaption: "Promo Spesial Akhir Pekan Beli 1 Gratis 1 Semua Varian Kopi Susu",
+    postThumbnail: "☕",
+    commentCount: 1420,
+    status: "Selesai",
+    date: "17 Nov 2026 15.45",
+    source: "Instagram",
+  },
+  {
+    id: "ANL_000075",
+    shortcode: "FILE_DS_001",
+    postCaption: "dataset_survey_pelanggan_nov.csv",
+    postThumbnail: "📊",
+    commentCount: 850,
+    status: "Selesai",
+    date: "16 Nov 2026 11.20",
+    source: "File",
+  },
+  {
+    id: "ANL_000074",
+    shortcode: "DCT23kopW1z",
+    postCaption: "Giveaway Voucher Belanja Rp500.000 untuk 5 Pemenang Beruntung",
+    postThumbnail: "🎁",
+    commentCount: 3240,
+    status: "Selesai",
+    date: "14 Nov 2026 19.10",
+    source: "Instagram",
+  },
+  {
+    id: "ANL_000073",
+    shortcode: "DCR55lepR8v",
+    postCaption: "Behind the Scene Roasting Biji Kopi Arabika Gayo Pilihan",
+    postThumbnail: "🌾",
+    commentCount: 420,
+    status: "Selesai",
+    date: "12 Nov 2026 14.05",
+    source: "Instagram",
+  },
+  {
+    id: "ANL_000072",
+    shortcode: "FILE_FB_002",
+    postCaption: "feedback_kolaborasi_pastry.xlsx",
+    postThumbnail: "📑",
+    commentCount: 680,
+    status: "Diproses",
+    date: "10 Nov 2026 09.30",
+    source: "File",
+  },
+  {
+    id: "ANL_000071",
+    shortcode: "DCL40bopY5t",
+    postCaption: "Klarifikasi Keterlambatan Pengiriman Paket Batch 3",
+    postThumbnail: "📦",
+    commentCount: 920,
+    status: "Selesai",
+    date: "07 Nov 2026 16.40",
+    source: "Instagram",
+  },
+];
