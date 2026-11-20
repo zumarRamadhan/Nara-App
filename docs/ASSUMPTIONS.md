@@ -76,3 +76,38 @@ Dokumen ini mencatat setiap asumsi, interpretasi, dan penyesuaian yang diambil s
   - Endpoint `POST /api/auth/logout` menghapus cookie sesi secara definitif dengan menyetel `Set-Cookie` bernilai kosong, `maxAge: 0`, `expires: new Date(0)`, serta atribut identik saat pembuatan (`path: "/"`, `sameSite: "lax"`, `httpOnly: true`, `secure`).
   - Navigasi logout di sisi client memakai `window.location.assign("/login")` (bukan client-side soft router push) guna membersihkan seluruh router cache client dan memori state React.
   - Penanda notifikasi toast disimpan di `sessionStorage` sebelum navigasi dan dibaca serta dihapus saat halaman `/login` selesai dimuat (bebas dari hydration mismatch).
+
+## 7. Asumsi dan Keputusan Teknis – Fase 2A (Backend FastAPI & PostgreSQL)
+- **Lingkup Arsitektur:** Implementasi backend inti menggunakan FastAPI, PostgreSQL (via Docker Compose / lokal port 5432), SQLAlchemy 2.x, Alembic, psycopg v3, dan Argon2id untuk hashing kata sandi.
+- **Urutan Fase Baru:**
+  1. Fase 1: Frontend Foundation & Mock Data (selesai).
+  2. Fase 2A: Backend Core, Auth, & Impor Berkas (selesai).
+  3. Fase 3: Pipeline NLP (Preprocessing, IndoBERT/Rule-based inference, sentimen).
+  4. Fase 4: Integrasi Frontend & Backend, Ekspor Laporan PDF/CSV.
+  5. Fase 5: Integrasi Instagram Graph API & Meta OAuth.
+  6. Fase 6: Pengujian komprehensif, optimasi performa, & deployment.
+- **Model Analisis Ganda (`source_type`):**
+  - Setiap rekaman analisis memiliki atribut `source_type` bernilai `file_import` (saat ini) atau `instagram_link` (Fase 5). Kedua jalur masukan menghasilkan format komentar yang identik pada tabel `comments`.
+- **Manajemen Sesi & Keamanan:**
+  - Autentikasi menggunakan cookie `nara_session` berisi token JWT (HS256) dengan masa aktif 8 jam (`httpOnly: True`, `samesite="lax"`, `secure` di environment produksi).
+  - Endpoint `POST /api/auth/login` mengembalikan pesan galat 401 identik (*"Email atau kata sandi salah."*) baik untuk kasus email tidak terdaftar maupun kata sandi salah guna mencegah *user enumeration attack*.
+  - Dilengkapi *in-memory rate limiter*: 5 kali percobaan gagal berturut-turut untuk kombinasi email + alamat IP memicu status HTTP 429 selama 30 detik.
+  - Endpoint `POST /api/auth/logout` menghapus cookie sesi dengan atribut identik dan menyertakan header `Cache-Control: no-store`.
+  - Endpoint publik hanya: `GET /api/health`, `GET /api/imports/template`, `POST /api/auth/register`, dan `POST /api/auth/login`. Seluruh endpoint analisis lainnya memerlukan dependency `get_current_user`.
+- **Isolasi Akses Multi-Tenant:**
+  - Seluruh query daftar, detail, komentar, dan penghapusan analisis difilter secara ketat berdasarkan `user_id`.
+  - Akses terhadap ID analisis milik pengguna lain menghasilkan status HTTP 404 (*"Analisis tidak ditemukan atau Anda tidak memiliki akses."*) guna mencegah *information disclosure* (tidak menggunakan 403).
+- **Aturan Pemrosesan Berkas Komentar:**
+  - Hanya berkas dengan ekstensi `.csv` dan `.xlsx` yang diizinkan (maksimal 5 MB dan 10.000 baris).
+  - Kolom `comment_text` wajib ada dan tidak boleh kosong; baris kosong diabaikan.
+  - Teks komentar dipotong maksimal 2.000 karakter (`MAX_TEXT_LENGTH`).
+  - Label sentimen dinormalisasi tanpa membedakan huruf besar/kecil (`positif`, `netral`, `negatif`). Nilai di luar ketiga label tersebut diabaikan (dijadikan `None`) dan dihitung pada `ignored_labels_count`.
+  - Parsing tanggal/waktu bersifat toleran (*tolerant parsing*); nilai yang tidak dapat diparse disimpan sebagai `None`.
+  - Nilai jumlah like non-numerik dinormalisasi menjadi `0`.
+- **Mitigasi Formula Injection:**
+  - Untuk ekspor CSV di fase berikutnya, sel yang diawali karakter formula (`=`, `+`, `-`, `@`) wajib di-escape tanda kutip tunggal untuk mencegah *CSV Injection* di aplikasi spreadsheet.
+- **Hal yang Belum Dikerjakan (Di Luar Lingkup Fase 2A):**
+  - Penyambungan frontend Next.js dengan API backend (dikerjakan pada Fase 4).
+  - Integrasi model Machine Learning / IndoBERT untuk inferensi sentimen otomatis saat file tidak berlabel (Fase 3).
+  - Integrasi webhook & OAuth Instagram Graph API (Fase 5).
+  - Verifikasi email dan alur lupa kata sandi.
